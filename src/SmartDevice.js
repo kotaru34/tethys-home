@@ -13,7 +13,7 @@ class SmartDevice {
     this.device = new TuyaDevice({
       id: config.id,
       key: config.key,
-      //ip: config.ip,
+      ip: config.ip,
       version: config.version || '3.3'
     });
 
@@ -69,11 +69,9 @@ class SmartDevice {
 
     this.isConnecting = true;
     try {
-      await this.device.find(); // Ensure we have the latest IP address
       await this.device.connect();
     } catch (error) {
       console.log(`Failed to connect to device ${this.name}: `, error);
-      this.reconnect();
     } finally {
       this.isConnecting = false;
     }
@@ -81,12 +79,9 @@ class SmartDevice {
 
   reconnect() {
     this.retryCount++;
-    const retryDelay = Math.min(this.retryCount * 2000, 30000); // Exponential backoff up to 30 seconds
-
-    setTimeout(() => {
-      console.log(`Retrying connection to device ${this.name}. Attempt #${this.retryCount}.`);
-      this.connect();
-    }, retryDelay);
+    const retryDelay = Math.min(this.retryCount * 2000, 30000);
+    console.log(`Retrying connection for ${this.name} in ${retryDelay / 1000}s...`);
+    setTimeout(() => this.connect(), retryDelay);
   }
 
   async toggle() {
