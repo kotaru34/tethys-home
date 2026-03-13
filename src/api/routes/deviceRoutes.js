@@ -1,29 +1,29 @@
 const express = require('express');
-const router = express.Router();
 
 module.exports = (hub) => {
-
+  const router = express.Router();
+  const deviceService = hub.getDeviceService();
+  const deviceCommandService = hub.getDeviceCommandService();
+  
   router.get('/', (req, res) => {
-    const devices = Object.values(hub.devices).map(device => ({
-      id: device.id,
-      name: device.name,
-      category: device.category,
-      product_name: device.product_name,
-      state: device.state,
-      isOnline: device.isConnected
-    }));
-    res.json(devices);
+    return res.json(deviceService.listDevices());
+  });
+
+  router.get('/:id', (req, res) => {
+    const device = deviceService.getDeviceById(req.params.id);
+    if (!device) return res.status(404).json({ error: 'Device not found' });
+    return res.json(device);
   });
 
   router.post('/:id/toggle', async (req, res) => {
-    const device = hub.getDevice(req.params.id);
+    const device = deviceService.getDeviceById(req.params.id);
     if (!device) return res.status(404).json({ error: 'Device not found' });
     try {
-      await device.toggle();
-      res.json({ success: true, state: device.state });
+      const updatedDevice = await deviceCommandService.toggleDevice(req.params.id);
+      return res.json(updatedDevice);
     } catch (error) {
-      console.log(`Error toggling device ${device.name}: `, error);
-      res.status(500).json({ error: 'Failed to toggle device' });
+      console.error(`Error toggling device ${device.name}: `, error);
+      return res.status(500).json({ error: 'Failed to toggle device' });
     }
   });
 
