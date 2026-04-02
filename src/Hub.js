@@ -3,13 +3,18 @@ const DeviceRepository = require('./infrastructure/postgres/DeviceRepository');
 const DeviceRegistry = require('./domain/devices/DeviceRegistry');
 const DeviceService = require('./domain/devices/DeviceService');
 const DeviceCommandService = require('./domain/devices/DeviceCommandService');
+const DeviceDiscoveryService = require('./domain/devices/DeviceDiscoveryService');
+const CatalogRepository = require('./infrastructure/postgres/CatalogRepository');
+
 
 class Hub {
   constructor() {
     this.deviceRegistry = new DeviceRegistry();
     this.deviceRepository = new DeviceRepository();
+    this.catalogRepository = new CatalogRepository();
     this.deviceService = new DeviceService(this.deviceRegistry);
     this.deviceCommandService = new DeviceCommandService(this.deviceRegistry);
+    this.deviceDiscoveryService = new DeviceDiscoveryService(this.deviceRegistry, this.catalogRepository);
   }
 
   async init() {
@@ -43,6 +48,10 @@ class Hub {
 
   getDeviceCommandService() {
     return this.deviceCommandService;
+  }
+
+  getDeviceDiscoveryService() {
+    return this.deviceDiscoveryService;
   }
 }
 

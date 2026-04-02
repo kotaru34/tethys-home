@@ -1,5 +1,5 @@
 class DeviceRegistry {
-  constructor() {
+  constructor () {
     this.devices = new Map();
   }
 
