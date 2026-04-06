@@ -28,6 +28,10 @@ class SmartDevice {
     this.reconnectTimer = null;
     this.shouldReconnect = true;
 
+    this.matchedModules = null;
+    this.activeSurfaces = null;
+    this.discoverySnapshot = null;
+
     this.initListeners();
   }
 

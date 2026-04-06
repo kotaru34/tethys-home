@@ -3,12 +3,17 @@ const pool = require('../../db/pool');
 
 class CatalogRepository {
   async getModules(category) {
-    const { rows } = await pool.query(sql.getCategoryModules, [category]);
+    const { rows } = await pool.query(sql.getModules, [category]);
     return rows;
   }
 
-  async getDiscoveryDps(category) {
-    const { rows } = await pool.query(sql.getCategoryDiscoveryDps, [category]);
+  async getModulesDiscoveryDps(category) {
+    const { rows } = await pool.query(sql.getModulesDiscoveryDps, [category]);
+    return rows;
+  }
+
+  async getModulesCapabilities(codes, category) {
+    const { rows } = await pool.query(sql.getModulesCapabilities, [codes, category])
     return rows;
   }
 }

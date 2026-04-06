@@ -29,7 +29,8 @@ class DeviceRegistry {
       retryCount: device.retryCount,
       lastSeenAt: device.lastSeenAt,
       lastError: device.lastError,
-      state: device.state
+      state: device.state,
+      activeSurfaces: device.activeSurfaces
     }));
   }
 

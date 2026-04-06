@@ -21,7 +21,7 @@ const queryRequests = Object.freeze({
 
     // get modules for a category
     // (required) $1 = category code (cz, dj, ...)
-    getCategoryModules: `
+    getModules: `
       SELECT
         m.id AS module_id,
         m.code AS module_code,
@@ -35,10 +35,12 @@ const queryRequests = Object.freeze({
 
     // get all discovery codes each module of device category
     // (required) $1 = category code (cz, dj, ...)
-    getCategoryDiscoveryDps: `
+    getModulesDiscoveryDps: `
       SELECT
         m.id AS module_id,
         m.code AS module_code,
+        m.surface AS module_surface,
+        m.priority AS module_priority,
         json_agg(mdd.dp_code) AS dp_codes
       FROM smart_home.module_discovery_dps mdd
       JOIN smart_home.modules m
@@ -47,6 +49,26 @@ const queryRequests = Object.freeze({
         ON m.category_id = dcat.id
       WHERE dcat.code = $1
       GROUP BY m.id, m.code;
+    `,
+    
+    // get capabilities for each listed module (many) by their code and category to avoid
+    // duplicates from categories where device don't belong
+    // (required) $1 = list of modules ('rgb', 'cct_lamp', ...), $2 = category code (cz, 
+    // dj, ...)
+    getModulesCapabilities: `
+      SELECT
+        m.code AS module_code,
+        json_agg(c.code) AS capabilities
+      FROM smart_home.modules m
+      JOIN smart_home.module_capabilities mc
+        ON mc.module_id = m.id
+      JOIN smart_home.capabilities c
+        ON mc.capability_id = c.id
+      JOIN smart_home.device_categories dc
+        ON dc.id = m.category_id
+      WHERE m.code = ANY($1) 
+        AND dc.code = $2
+      GROUP BY m.code;
     `,
 });
 

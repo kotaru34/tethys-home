@@ -34,9 +34,11 @@ module.exports = (hub) => {
       return res.json(discover);
     } catch (error) {
       if (error.message === 'DEVICE_NOT_FOUND') return res.status(404).json({ error: 'Device not found'});
+      else if (error.message === 'DEVICE_HAS_NO_KNOWN_MODULES') return res.status(404).json({ error: 'No known modules were found for the current device' });
       else if (error.message === 'DEVICE_OFFLINE') return res.status(503).json({ error: 'Device is currently offline'});
       else if (error.message === 'DEVICE_NOT_READY') return res.status(503).json({ error: 'Device is online but has no state data yet'});
-      else return res.status(500).json({ error: 'Internal Server Error' });
+      // remove detailed error message
+      else return res.status(500).json({ error: `Internal Server Error (${error})` });
     }
   });
 
