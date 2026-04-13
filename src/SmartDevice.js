@@ -11,6 +11,7 @@ class SmartDevice {
 
     this.mainSwitch = this.category === 'cz' ? '1' : '20';
 
+    // @ts-ignore
     this.device = new TuyaDevice({
       id: config.id,
       key: config.key,
@@ -28,8 +29,7 @@ class SmartDevice {
     this.reconnectTimer = null;
     this.shouldReconnect = true;
 
-    this.matchedModules = null;
-    this.activeSurfaces = null;
+    this.activeSurfaces = {};
     this.discoverySnapshot = null;
 
     this.initListeners();

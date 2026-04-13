@@ -1,17 +1,19 @@
-const SmartDevice = require('./SmartDevice');
+const CatalogRepository = require('./infrastructure/postgres/CatalogRepository');
+const CapabilityResolver = require('./domain/devices/CapabilityResolver')
 const DeviceRepository = require('./infrastructure/postgres/DeviceRepository');
 const DeviceRegistry = require('./domain/devices/DeviceRegistry');
 const DeviceService = require('./domain/devices/DeviceService');
 const DeviceCommandService = require('./domain/devices/DeviceCommandService');
 const DeviceDiscoveryService = require('./domain/devices/DeviceDiscoveryService');
-const CatalogRepository = require('./infrastructure/postgres/CatalogRepository');
+const SmartDevice = require('./SmartDevice');
 
 
 class Hub {
   constructor() {
+    this.catalogRepository = new CatalogRepository();
+    this.capabilityResolver = new CapabilityResolver(this.catalogRepository);
     this.deviceRegistry = new DeviceRegistry();
     this.deviceRepository = new DeviceRepository();
-    this.catalogRepository = new CatalogRepository();
     this.deviceService = new DeviceService(this.deviceRegistry);
     this.deviceCommandService = new DeviceCommandService(this.deviceRegistry);
     this.deviceDiscoveryService = new DeviceDiscoveryService(this.deviceRegistry, this.catalogRepository);
