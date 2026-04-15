@@ -8,8 +8,8 @@ class CatalogRepository {
     return rows;
   }
 
-  async setDeviceDiscoveryRun(tuya_device_id) {
-    const id = await pool.query(sql.setDeviceDiscoveryRun, [tuya_device_id, version]);
+  async setDeviceDiscoveryRun(tuyaDeviceId) {
+    const id = await pool.query(sql.setDeviceDiscoveryRun, [tuyaDeviceId, version]);
     return id.rows[0].id;
   }
 
@@ -22,8 +22,8 @@ class CatalogRepository {
     await pool.query(sql.updateDeviceDiscoveryRun_failed, [runId, error]);
   }
 
-  async getDeviceActiveSurfaces(tuya_device_id) {
-    const { rows } = await pool.query(sql.getDeviceActiveSurfaces, [tuya_device_id]);
+  async getDeviceActiveSurfaces(tuyaDeviceId) {
+    const { rows } = await pool.query(sql.getDeviceActiveSurfaces, [tuyaDeviceId]);
     return rows;
   }
 }

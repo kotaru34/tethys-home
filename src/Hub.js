@@ -11,12 +11,16 @@ const SmartDevice = require('./SmartDevice');
 class Hub {
   constructor() {
     this.catalogRepository = new CatalogRepository();
-    this.capabilityResolver = new CapabilityResolver(this.catalogRepository);
+    this.capabilityResolver = new CapabilityResolver();
     this.deviceRegistry = new DeviceRegistry();
     this.deviceRepository = new DeviceRepository();
     this.deviceService = new DeviceService(this.deviceRegistry);
-    this.deviceCommandService = new DeviceCommandService(this.deviceRegistry);
     this.deviceDiscoveryService = new DeviceDiscoveryService(this.deviceRegistry, this.catalogRepository);
+    this.deviceCommandService = new DeviceCommandService(
+      this.deviceRegistry,
+      this.deviceDiscoveryService,
+      this.capabilityResolver
+    );
   }
 
   async init() {
@@ -41,6 +45,7 @@ class Hub {
       const device = new SmartDevice(config);
       this.deviceRegistry.add(device);
       device.connect();
+      await new Promise(r => setTimeout(r, 300));
     }
   }
 

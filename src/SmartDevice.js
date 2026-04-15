@@ -17,6 +17,9 @@ class SmartDevice {
       key: config.key,
       ip: config.ip,
       version: config.version,
+      issueGetOnConnect: false,
+issueRefreshOnConnect: false,
+issueRefreshOnPing: false,
     });
 
     this.isConnecting = false;
@@ -75,9 +78,8 @@ class SmartDevice {
     this.device.on('error', (error) => {
       this.lastError = error;
       this.isConnecting = false;
-
       console.log(`Error with device ${this.name}:`, error);
-
+      
       if (this.shouldReconnect) {
         this.scheduleReconnect('error');
       }
@@ -195,10 +197,11 @@ class SmartDevice {
 
     await this.connect();
   }
-
-  async toggle() {
-    await this.device.toggle(this.mainSwitch);
-    console.log(`Toggled device ${this.name}`);
+  
+  async toggleDp(dpCode, moduleCode) {
+    const dp = String(dpCode);
+    await this.device.toggle(dp);
+    console.log(`Toggled ${moduleCode} for ${this.name}`);
   }
 }
 

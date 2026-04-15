@@ -10,15 +10,15 @@ class DeviceDiscoveryService {
     await Promise.all(discoveryPromises);
   }
 
-  async discoverDevice(tuya_device_id) {
-    const device = this.deviceRegistry.getById(tuya_device_id);
+  async discoverDevice(tuyaDeviceId) {
+    const device = this.deviceRegistry.getById(tuyaDeviceId);
     if (!device) throw new Error('DEVICE_NOT_FOUND');
     if (!device.isConnected) throw new Error('DEVICE_OFFLINE');
 
     let runId = null;
 
     try {
-      const currentDiscoveryRun = await this.catalogRepository.setDeviceDiscoveryRun(tuya_device_id);
+      const currentDiscoveryRun = await this.catalogRepository.setDeviceDiscoveryRun(tuyaDeviceId);
       runId = currentDiscoveryRun;
 
       const observedDps = device.state ? Object.keys(device.state).map(Number) : [];
@@ -26,7 +26,7 @@ class DeviceDiscoveryService {
 
       await this.catalogRepository.updateDeviceDiscoveryRun(runId, observedDps);
   
-      const activeSurfaceRows = await this.catalogRepository.getDeviceActiveSurfaces(tuya_device_id);
+      const activeSurfaceRows = await this.catalogRepository.getDeviceActiveSurfaces(tuyaDeviceId);
       const activeSurfaces = this.buildActiveSurfaces(activeSurfaceRows);
 
       device.activeSurfaces = activeSurfaces;
