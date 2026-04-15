@@ -201,7 +201,20 @@ issueRefreshOnPing: false,
   async toggleDp(dpCode, moduleCode) {
     const dp = String(dpCode);
     await this.device.toggle(dp);
-    console.log(`Toggled ${moduleCode} for ${this.name}`);
+    console.log(`Toggled ${moduleCode} for ${this.name}.`);
+  }
+
+  // 1 or many dp codes
+  async setDp(dpCode, value, moduleCode) {
+    // TODO: turn into objects and work with objects
+    const dp = String(dpCode);
+    await this.device.set({
+      multiple: true,
+      data: {
+        // parsed codes and values
+      }
+      // fix for multiple lines of data
+    }).then(() => console.log(`Set ${moduleCode} for ${this.name} to ${value}.`));
   }
 }
 

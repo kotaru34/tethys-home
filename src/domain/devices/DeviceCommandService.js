@@ -19,7 +19,7 @@ class DeviceCommandService {
     if (!device) throw new Error('DEVICE_NOT_FOUND');
     if (!device.isConnected) throw new Error('DEVICE_OFFLINE');
     
-    // TODECIDE: maybe turn this into manual controlled
+    // TO_DECIDE: maybe turn this into manual controlled
     if (!device.activeSurfaces || !Object.keys(device.activeSurfaces).length)
       await this.deviceDiscoveryService.discoverDevice(deviceId);
 
