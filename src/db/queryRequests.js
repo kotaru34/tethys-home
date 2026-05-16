@@ -186,8 +186,8 @@ const queryRequests = Object.freeze({
   `,
 
   // Get active modules and their aggregated capabilities for a specific device.
-  // Grouped by surface/module to provide a structured map of DP codes and parsers.
-  // (required) $1 = tuya_device_id
+  // Grouped by surface/module to provide a structured map of DP codes.
+  // (required) $1 = tuya_device_id.
   getDeviceActiveSurfaces: `
     SELECT
       m.surface,
@@ -200,7 +200,6 @@ const queryRequests = Object.freeze({
           'dp_code', mp.dp_code,
           'semantic_type', c.semantic_type,
           'transport_type', mp.transport_type,
-          'parser_code', p.code,
           'constraints', mp.constraints_jsonb
         )
         ORDER BY c.code
@@ -215,8 +214,6 @@ const queryRequests = Object.freeze({
       ON mp.module_id = m.id
     JOIN smart_home.capabilities c
       ON c.id = mp.capability_id
-    LEFT JOIN smart_home.parsers p
-      ON p.id = mp.parser_id
     WHERE d.tuya_device_id = $1
     GROUP BY
       m.surface, 

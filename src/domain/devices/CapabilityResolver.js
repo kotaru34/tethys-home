@@ -20,7 +20,6 @@ class CapabilityResolver {
       dp_code: capability.dp_code,
       module_code: surfaceModel.module_code,
       module_id: surfaceModel.module_id,
-      parser_code: capability.parser_code,
       semantic_type: capability.semantic_type,
       surface,
       transport_type: capability.transport_type,
