@@ -1,3 +1,5 @@
+const { toSummary } = require("../../api/dto/deviceMapper");
+
 class DeviceRegistry {
   constructor () {
     this.devices = new Map();
@@ -18,24 +20,15 @@ class DeviceRegistry {
   }
 
   getAllSummaries() {
-    return Array.from(this.devices.values()).map((device) => ({
-      id: device.id,
-      name: device.name,
-      category: device.category,
-      product_name: device.product_name,
-      ip: device.ip,
-      isConnected: device.isConnected,
-      isConnecting: device.isConnecting,
-      retryCount: device.retryCount,
-      lastSeenAt: device.lastSeenAt,
-      lastError: device.lastError,
-      state: device.state,
-      activeSurfaces: device.activeSurfaces
-    }));
+    return Array.from(this.devices.values()).map((device) => (toSummary(device)));
   }
 
   getDeviceCount() {
     return this.devices.size;
+  }
+
+  getState(id) {
+    return this.devices.get(id).state;
   }
 }
 

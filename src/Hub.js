@@ -17,9 +17,10 @@ class Hub {
     this.deviceService = new DeviceService(this.deviceRegistry);
     this.deviceDiscoveryService = new DeviceDiscoveryService(this.deviceRegistry, this.catalogRepository);
     this.deviceCommandService = new DeviceCommandService(
+      this.deviceService,
       this.deviceRegistry,
-      this.deviceDiscoveryService,
-      this.capabilityResolver
+      this.capabilityResolver,
+      this.deviceDiscoveryService
     );
   }
 

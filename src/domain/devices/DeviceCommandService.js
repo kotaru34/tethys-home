@@ -1,10 +1,11 @@
 const { toSummary } = require('../../api/dto/deviceMapper');
 
 class DeviceCommandService {
-  constructor(deviceRegistry, deviceDiscoveryService, capabilityResolver) {
+  constructor(deviceService, deviceRegistry, capabilityResolver, deviceDiscoveryService) {
+    this.deviceService = deviceService;
     this.deviceRegistry = deviceRegistry;
-    this.deviceDiscoveryService = deviceDiscoveryService;
     this.capabilityResolver = capabilityResolver;
+    this.deviceDiscoveryService = deviceDiscoveryService;
   }
 
   async reconnectDevice(id) {
@@ -23,7 +24,7 @@ class DeviceCommandService {
       capabilityCode
     );
     await device.toggleDp(dp_code, module_code);
-    return toSummary(device);
+    return this.deviceService.getDeviceState(deviceId);
   }
 
   async setSurfaceCapabilities(deviceId, data) {
@@ -43,7 +44,7 @@ class DeviceCommandService {
     }
 
     await device.setDp(resolvedData);
-    return toSummary(device);
+    return this.deviceService.getDeviceState(deviceId);
   }
 }
 

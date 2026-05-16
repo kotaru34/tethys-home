@@ -14,17 +14,7 @@ class CapabilityResolver {
     if (value !== null && value !== undefined)
       validateCapabilityValue(capability, value);
 
-    return {
-      capability_code: capabilityCode,
-      constraints: capability.constraints || {},
-      dp_code: capability.dp_code,
-      module_code: surfaceModel.module_code,
-      module_id: surfaceModel.module_id,
-      semantic_type: capability.semantic_type,
-      surface,
-      transport_type: capability.transport_type,
-      value
-    };
+    return { dp_code: capability.dp_code, value };
   }
 }
 

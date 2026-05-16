@@ -6,12 +6,6 @@ function toSummary(device) {
     product_name: device.product_name,
     ip: device.ip,
     isConnected: device.isConnected,
-    isConnecting: device.isConnecting,
-    retryCount: device.retryCount,
-    lastSeenAt: device.lastSeenAt,
-    lastError: device.lastError,
-    state: device.state,
-    activeSurfaces: device.activeSurfaces
   };
 }
 
