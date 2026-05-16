@@ -28,6 +28,7 @@ module.exports = (hub) => {
 
   // Get single device's active surfaces with capabilities
   router.get('/:id/controls', asyncHandler(async (req, res) => {
+    await deviceDiscoveryService.ensureDiscovered(req.params.id);
     return res.json(deviceService.getDeviceControls(req.params.id));
   }));
 

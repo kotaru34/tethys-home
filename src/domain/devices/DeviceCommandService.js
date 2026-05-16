@@ -18,12 +18,12 @@ class DeviceCommandService {
   async toggleSurfaceCapability(deviceId, surface, capabilityCode) {
     await this.deviceDiscoveryService.ensureDiscovered(deviceId);
     const device = this.deviceRegistry.getById(deviceId);
-    const { dp_code, module_code } = this.capabilityResolver.resolve(
+    const { dp_code } = this.capabilityResolver.resolve(
       device,
       surface,
       capabilityCode
     );
-    await device.toggleDp(dp_code, module_code);
+    await device.toggleDp(dp_code);
     return this.deviceService.getDeviceState(deviceId);
   }
 

@@ -218,10 +218,10 @@ class SmartDevice extends EventEmitter{
     }
   }
   
-  async toggleDp(dpCode, moduleCode) {
+  async toggleDp(dpCode) {
     const dp = String(dpCode);
     await this.device.toggle(dp);
-    console.log(`Toggled ${moduleCode} for ${this.name}.`);
+    console.log(`Toggled state for ${this.name}.`);
   }
 
   async setDp(data) {
