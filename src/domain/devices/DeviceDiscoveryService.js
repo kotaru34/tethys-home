@@ -4,16 +4,11 @@ class DeviceDiscoveryService {
     this.catalogRepository = catalogRepository;
   }
 
-  async discoverAllDevices() {
-    const devices = this.deviceRegistry.getAll();
-    const discoveryPromises = devices.map(device => this.discoverDevice(device.id));
-    await Promise.all(discoveryPromises);
-  }
-
   async discoverDevice(tuyaDeviceId) {
     const device = this.deviceRegistry.getById(tuyaDeviceId);
     if (!device) throw new Error('DEVICE_NOT_FOUND');
     if (!device.isConnected) throw new Error('DEVICE_OFFLINE');
+    console.log("Running discovery attempt for an existing device: ", device.name);
 
     let runId = null;
 
@@ -34,6 +29,8 @@ class DeviceDiscoveryService {
         observedDps,
         discoveredAt: new Date()
       };
+      device.discoveryStatus = 'ready';
+      device.lastDiscoveryAt = new Date();
 
       return activeSurfaces;
     } catch (error) {
@@ -41,6 +38,8 @@ class DeviceDiscoveryService {
           // @ts-ignore
           await this.catalogRepository.updateDeviceDiscoveryRun_failed(runId, error.message);
       }
+      device.discoveryStatus = 'failed';
+      device.lastDiscoveryAt = new Date();
       throw error;
     }
   }
@@ -58,6 +57,42 @@ class DeviceDiscoveryService {
     }
 
     return activeSurfaces;
+  }
+
+  async ensureDiscovered(deviceId) {
+    const device = this.deviceRegistry.getById(deviceId);
+    if (!device) throw new Error('DEVICE_NOT_FOUND');
+    if (!device.isConnected) throw new Error('DEVICE_OFFLINE');
+
+    if (
+      device.discoveryStatus === 'ready' &&
+      device.activeSurfaces &&
+      Object.keys(device.activeSurfaces).length
+    ) {
+      return device.activeSurfaces;
+    }
+
+    if (device.discoveryStatus === 'running' && device.discoveryPromise) {
+      return device.discoveryPromise;
+    }
+
+    device.discoveryStatus = 'running';
+
+    device.discoveryPromise = this.discoverDevice(deviceId)
+      .then((result) => {
+        device.discoveryStatus = 'ready';
+        device.lastDiscoveryAt = new Date();
+        return result;
+      })
+      .catch((error) => {
+        device.discoveryStatus = 'failed';
+        throw error;
+      })
+      .finally(() => {
+        device.discoveryPromise = null;
+      });
+
+    return device.discoveryPromise;
   }
 }
 

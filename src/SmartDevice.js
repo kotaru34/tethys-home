@@ -1,7 +1,9 @@
+const EventEmitter = require('events');
 const TuyaDevice = require('tuyapi');
 
-class SmartDevice {
+class SmartDevice extends EventEmitter{
   constructor(config) {
+    super();
     this.config = config;
     this.id = config.id;
     this.name = config.name;
@@ -32,6 +34,10 @@ class SmartDevice {
 
     this.activeSurfaces = {};
     this.discoverySnapshot = null;
+    this.discoveryStatus = 'idle'; // idle | running | ready | failed
+    this.discoveryPromise = null;
+    this.lastDiscoveryAt = null;
+    this.hasEmittedStateReady = false;
 
     this.initListeners();
   }
@@ -48,7 +54,7 @@ class SmartDevice {
       this.device.get()
         .then((data) => {
           if (data && data.dps) {
-            Object.assign(this.state, data.dps);
+            this.handleIncomingDps(data.dps);
           }
           console.log(`Set initial state for device: ${this.name}`);
         })
@@ -87,7 +93,7 @@ class SmartDevice {
       this.lastSeenAt = new Date();
 
       if (data && data.dps) {
-        Object.assign(this.state, data.dps);
+        this.handleIncomingDps(data.dps);
       }
     });
 
@@ -95,7 +101,7 @@ class SmartDevice {
       this.lastSeenAt = new Date();
 
       if (data && data.dps) {
-        Object.assign(this.state, data.dps);
+        this.handleIncomingDps(data.dps);
       }
     });
 
@@ -195,18 +201,28 @@ class SmartDevice {
 
     await this.connect();
   }
+
+  handleIncomingDps(dps) {
+    if (!dps) return;
+
+    const hadStateBefore = Object.keys(this.state).length > 0;
+
+    Object.assign(this.state, dps);
+    this.lastSeenAt = new Date();
+
+    const hasStateNow = Object.keys(this.state).length > 0;
+
+    if (!hadStateBefore && hasStateNow && !this.hasEmittedStateReady) {
+      this.hasEmittedStateReady = true;
+      this.emit('state_ready', { deviceId: this.id });
+    }
+  }
   
   async toggleDp(dpCode, moduleCode) {
     const dp = String(dpCode);
     await this.device.toggle(dp);
     console.log(`Toggled ${moduleCode} for ${this.name}.`);
   }
-
-  hsvToTuyaRaw(h, s, v) {
-  return [h, s, v]
-    .map(x => Math.round(Number(x)).toString(16).padStart(4, '0'))
-    .join('');
-}
 
   async setDp(data) {
     const commandSet = data.reduce((accumulator, command) => {

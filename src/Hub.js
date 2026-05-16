@@ -45,6 +45,16 @@ class Hub {
       const device = new SmartDevice(config);
       this.deviceRegistry.add(device);
       device.connect();
+
+      device.on('state_ready', async () => {
+        try {
+          await this.deviceDiscoveryService.ensureDiscovered(device.id);
+        } catch (error) {
+          // @ts-ignore
+          console.log(`Auto-discovery failed for ${device.name}:`, error.message);
+        }
+      });
+
       await new Promise(r => setTimeout(r, 300));
     }
   }
