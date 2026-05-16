@@ -15,17 +15,43 @@ class DeviceCommandService {
   }
 
   async toggleSurfaceCapability(deviceId, surface, capabilityCode) {
+    const device = await this.checkDevice(deviceId);
+    const { dp_code, module_code } = this.capabilityResolver.resolve(
+      device,
+      surface,
+      capabilityCode
+    );
+    await device.toggleDp(dp_code, module_code);
+    return toSummary(device);
+  }
+
+  async setSurfaceCapabilities(deviceId, data) {
+    const device = await this.checkDevice(deviceId);
+    const resolvedData = [];
+    
+    for (const [surface, capabilities] of Object.entries(data)) {
+      for (const [capabilityCode, value] of Object.entries(capabilities)) {
+        resolvedData.push(this.capabilityResolver.resolve(
+          device,
+          surface,
+          capabilityCode,
+          value
+        ));
+      }
+    }
+
+    await device.setDp(resolvedData);
+    return toSummary(device);
+  }
+
+  async checkDevice(deviceId) {
     const device = this.deviceRegistry.getById(deviceId);
     if (!device) throw new Error('DEVICE_NOT_FOUND');
     if (!device.isConnected) throw new Error('DEVICE_OFFLINE');
-    
-    // TO_DECIDE: maybe turn this into manual controlled
+    // TO_DECIDE: maybe turn this into manually controlled
     if (!device.activeSurfaces || !Object.keys(device.activeSurfaces).length)
       await this.deviceDiscoveryService.discoverDevice(deviceId);
-
-    const resolved = this.capabilityResolver.resolve(device, surface, capabilityCode);
-    await device.toggleDp(resolved.dp_code, resolved.module_code);
-    return toSummary(device);
+    return device;
   }
 }
 

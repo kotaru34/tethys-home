@@ -9,8 +9,6 @@ class SmartDevice {
     this.product_name = config.product_name;
     this.ip = config.ip;
 
-    this.mainSwitch = this.category === 'cz' ? '1' : '20';
-
     // @ts-ignore
     this.device = new TuyaDevice({
       id: config.id,
@@ -18,8 +16,8 @@ class SmartDevice {
       ip: config.ip,
       version: config.version,
       issueGetOnConnect: false,
-issueRefreshOnConnect: false,
-issueRefreshOnPing: false,
+      issueRefreshOnConnect: false,
+      issueRefreshOnPing: false,
     });
 
     this.isConnecting = false;
@@ -78,7 +76,7 @@ issueRefreshOnPing: false,
     this.device.on('error', (error) => {
       this.lastError = error;
       this.isConnecting = false;
-      console.log(`Error with device ${this.name}:`, error);
+      // console.log(`Error with device ${this.name}:`, error);
       
       if (this.shouldReconnect) {
         this.scheduleReconnect('error');
@@ -160,7 +158,7 @@ issueRefreshOnPing: false,
       this.isConnecting = false;
       this.lastError = error;
 
-      console.log(`Failed to connect to device ${this.name}:`, error);
+      // console.log(`Failed to connect to device ${this.name}:`, error);
       this.scheduleReconnect('connect_failed');
     }
   }
@@ -204,17 +202,24 @@ issueRefreshOnPing: false,
     console.log(`Toggled ${moduleCode} for ${this.name}.`);
   }
 
-  // 1 or many dp codes
-  async setDp(dpCode, value, moduleCode) {
-    // TODO: turn into objects and work with objects
-    const dp = String(dpCode);
+  hsvToTuyaRaw(h, s, v) {
+  return [h, s, v]
+    .map(x => Math.round(Number(x)).toString(16).padStart(4, '0'))
+    .join('');
+}
+
+  async setDp(data) {
+    const commandSet = data.reduce((accumulator, command) => {
+      const key = command.dp_code.toString();
+      const value = command.value;
+      accumulator[key] = value;
+      return accumulator;
+    }, {});
+
     await this.device.set({
       multiple: true,
-      data: {
-        // parsed codes and values
-      }
-      // fix for multiple lines of data
-    }).then(() => console.log(`Set ${moduleCode} for ${this.name} to ${value}.`));
+      data: commandSet
+    }).then(() => console.log(`Completed complex command for ${this.name}.`));
   }
 }
 

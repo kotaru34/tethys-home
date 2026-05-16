@@ -31,5 +31,9 @@ module.exports = function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: 'Invalid value for capability' });
   }
 
-  return res.status(500).json({ error: 'Internal Server Error' });
+  if (err.message === 'UNSUPPORTED_SEMANTIC_TYPE') {
+    return res.status(400).json({ error: 'Invalid semantic value' });
+  }
+
+  return res.status(500).json({ error: `Internal Server Error ${err}` });
 };
